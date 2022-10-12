@@ -16,7 +16,8 @@ def config_parser(config_path):
 
 def driver():
     # pre-process data
-    ds = DatasetSTS(gt_folder = "../sts2016-english-with-gs-v1.0/sts2016-english-with-gs-v1.0")
+    ds = DatasetSTS(download_url='http://alt.qcri.org/semeval2016/task1/data/uploads/sts2016-english-with-gs-v1.0.zip')
+
     ds.pre_process()
     s1, s2 = ds.get_sentence_pairs()
     gt = ds.get_gt_scores()
