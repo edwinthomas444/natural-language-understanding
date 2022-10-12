@@ -29,19 +29,20 @@ def driver():
         eval_dict = run['eval']
         for m_dict in eval_dict:
             m_type = m_dict['model_type']
-            m_names = m_dict['model_names']
-            all_combs = itertools.product(m_type, m_names)
+            m_names = m_dict['model_names'][:2]
+            all_combs = itertools.product([m_type], m_names)
+            
             for (m_t, m_n) in all_combs:
                 mod = get_model(m_t, m_n)
-
                 # get encodings
                 encoding_s1 = mod.get_encodings(s1)
                 encoding_s2 = mod.get_encodings(s2)
                 p_scores = get_similarity_scores_tensors(encoding_s1, encoding_s2)
 
                 # evaluation
-                eval_test = EvaluationSTS(eval_file='..\sts2016-english-with-gs-v1.0\sts2016-english-with-gs-v1.0\correlation-noconfidence.pl')
+                eval_test = EvaluationSTS(eval_file='.\scripts\correlation-noconfidence.pl')
                 corr_score = eval_test.evaluate(gt_scores=gt, pred_scores=p_scores)
+                print(f'{run_id}: {m_t}_{m_n} | score: {corr_score}')
                 print(corr_score)
 
 def main():

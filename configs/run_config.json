@@ -3,7 +3,7 @@
         "run_name": "run_test",
         "eval": [
             {
-                "model_type": "sentence_transformer",
+                "model_type": "SentenceTransformerModel",
                 "model_names": [
                     "all-MiniLM-L6-v2",
                     "all-mpnet-base-v2",
@@ -19,7 +19,7 @@
                 ]
             },
             {
-                "model_type": "word2vec",
+                "model_type": "Word2VecModel",
                 "model_names": [
                     "word2vec-google-news-300"
                 ]

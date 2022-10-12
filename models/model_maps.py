@@ -1,4 +1,4 @@
-from model import *
+from models.model import *
 
 supported_models = [
     'SentenceTransformerModel',
