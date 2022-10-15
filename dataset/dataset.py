@@ -11,8 +11,6 @@ class DatasetSTS:
         self.download_dataset()
         self.gt_files = self.get_gt_files()
         self.input_files = self.get_inp_files()
-        for g,i in zip(self.gt_files, self.input_files):
-            print(g, i)
         
     def download_dataset(self):
         if not os.path.exists(os.path.dirname(self.dataset_root)):

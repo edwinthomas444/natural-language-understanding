@@ -46,7 +46,7 @@ class Word2VecModel:
         return all_emb
 
 class SentenceTransformerModel:
-    def __init__(self, model_name, device='cpu'):
+    def __init__(self, model_name, device='cuda'):
         self.model_name = model_name
         self.device = device
         self.model = self.get_transformer()
