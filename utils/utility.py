@@ -7,12 +7,12 @@ def get_similarity_scores_tensors(emb1, emb2):
     val = cos_sim(emb1, emb2)
     return val
 
-
-
 # utility class for storing inference output types
 class InferenceRow:
     def __init__(self):
-        self.attr_names = ['RUN ID', 'MODEL TYPE', 'MODEL NAME', 'CORRELATION SCORE']
+        self.attr_names = ['RUN ID', 'DATASET TYPE', 
+                           'MODEL TYPE', 'MODEL NAME', 
+                           'CORRELATION SCORE']
         self.data = {k:[] for k in self.attr_names}
     def set_run_id(self,val):
         self.run_id = val
@@ -20,15 +20,19 @@ class InferenceRow:
         return self
     def set_model_name(self, val):
         self.model_name = val
-        self.data['MODEL TYPE'] = self.model_name
+        self.data['MODEL NAME'] = self.model_name
         return self
     def set_model_type(self, val):
         self.model_type = val
-        self.data['MODEL NAME'] = self.model_type
+        self.data['MODEL TYPE'] = self.model_type
         return self
     def set_corr_score(self, val):
         self.corr_score = val
         self.data['CORRELATION SCORE'] = self.corr_score
+        return self
+    def set_dataset_type(self, val):
+        self.dataset_type = val
+        self.data['DATASET TYPE'] = self.dataset_type
         return self
     
 class InferenceData:

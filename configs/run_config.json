@@ -1,6 +1,11 @@
 [
     {
         "run_name": "run_test",
+        "device": "cuda",
+        "dataset":{
+            "url": "http://alt.qcri.org/semeval2016/task1/data/uploads/sts2016-english-with-gs-v1.0.zip",
+            "download": false
+        },
         "eval": [
             {
                 "model_type": "SentenceTransformerModel",

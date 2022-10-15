@@ -7,8 +7,9 @@ import torch
 import time
 
 class Word2VecModel:
-    def __init__(self, model_name):
+    def __init__(self, model_name, device):
         self.model_name = model_name
+        self.device = device
         self.model = self.get_model()
         self.vocab = list(self.model.key_to_index.keys())
 
