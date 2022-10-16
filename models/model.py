@@ -5,6 +5,11 @@ from tqdm import tqdm
 from nltk.tokenize import word_tokenize
 import torch
 import time
+import nltk
+import string
+nltk.download('punkt')
+nltk.download('stopwords')
+from nltk.corpus import stopwords
 
 class Word2VecModel:
     def __init__(self, model_name, device):
@@ -19,7 +24,10 @@ class Word2VecModel:
     
     def get_word_tokens(self, sent):
         w_t = word_tokenize(sent)
-        return w_t
+        w_t_p = [w for w in w_t if w not in string.punctuation]
+        # s_w = set(stopwords.words('english'))
+        # w_t_ps = [w for w in w_t_p if not w.lower() in s_w]
+        return w_t_p
     
     def get_word_embedding(self,token):
         return self.model[token]
@@ -29,7 +37,7 @@ class Word2VecModel:
         return filt_toks
                 
     def compute_sent_emb(self, word_emb):
-        sent_emb = np.average(word_emb, axis=0, keepdims=True)
+        sent_emb = np.mean(word_emb, axis=0, keepdims=True)
         return sent_emb
 
     def get_encodings(self, data, tensor=True):
