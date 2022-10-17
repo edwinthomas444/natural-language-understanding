@@ -24,7 +24,7 @@ class Word2VecModel:
     
     def get_word_tokens(self, sent):
         w_t = word_tokenize(sent)
-        w_t_p = [w for w in w_t if w not in string.punctuation]
+        w_t_p = [w.lower() for w in w_t if w not in string.punctuation]
         # s_w = set(stopwords.words('english'))
         # w_t_ps = [w for w in w_t_p if not w.lower() in s_w]
         return w_t_p
@@ -46,6 +46,8 @@ class Word2VecModel:
             # get word tokens
             w_t = self.get_word_tokens(sent)
             w_tf = self.get_filtered_toks(w_t)
+            if len(w_tf)==0:
+                w_tf = ['test']
             w_e = self.get_word_embedding(w_tf)
             s_e = self.compute_sent_emb(w_e)
             all_emb.append(s_e)
