@@ -14,17 +14,17 @@ class EvaluationSTS:
         out = stdout.read().decode('utf-8')
         return out
 
-    def evaluate(self, gt_scores, pred_scores):
+    def evaluate(self, gt_scores, pred_scores, pred_fname, gt_fname):
         # write gt and pred to files
-        gt_file, pred_file = 'gt.txt', 'pred.txt'
+        gt_file, pred_file = gt_fname, pred_fname
 
-        with open(os.path.join('output','gt.txt'),'w') as f:
+        with open(os.path.join('output',gt_file),'w') as f:
             [f.write(str(gt)+"\n") for gt in gt_scores]
         
         is_tensor = isinstance(pred_scores, numpy.ndarray) or isinstance(pred_scores, torch.Tensor)
         is_arr = isinstance(pred_scores, list)
 
-        with open(os.path.join('output','pred.txt'),'w') as f:
+        with open(os.path.join('output',pred_file),'w') as f:
             if is_tensor:
                 [f.write(str(pred.item())+"\n") for pred in pred_scores]
             elif is_arr:

@@ -10,22 +10,17 @@
             {
                 "model_type": "SentenceTransformerModel",
                 "model_names": [
-                    "all-MiniLM-L6-v2",
-                    "all-mpnet-base-v2",
-                    "all-distilroberta-v1",
-                    "all-MiniLM-L12-v2",
+                    "bert-base-nli-mean-tokens",
+                    "msmarco-distilbert-base-tas-b",
                     "multi-qa-mpnet-base-dot-v1",
-                    "distiluse-base-multilingual-cased-v1",
-                    "sentence-t5-base",
-                    "all-MiniLM-L6-v1",
-                    "gtr-t5-base",
-                    "all-roberta-large-v1",
-                    "gtr-t5-large"
+                    "sentence-t5-base"
                 ]
             },
             {
                 "model_type": "Word2VecModel",
                 "model_names": [
+                    "fasttext-wiki-news-subwords-300",
+                    "glove-wiki-gigaword-300",
                     "word2vec-google-news-300"
                 ]
             }
