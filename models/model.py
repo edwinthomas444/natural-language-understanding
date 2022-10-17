@@ -4,6 +4,7 @@ import gensim.downloader as api
 from tqdm import tqdm 
 from nltk.tokenize import word_tokenize
 import torch
+import gensim
 import time
 import nltk
 import string
@@ -51,6 +52,41 @@ class Word2VecModel:
             w_e = self.get_word_embedding(w_tf)
             s_e = self.compute_sent_emb(w_e)
             all_emb.append(s_e)
+        all_emb = np.concatenate(all_emb, axis=0)
+        if tensor:
+            all_emb = torch.from_numpy(all_emb)
+        return all_emb
+
+class Doc2VecModel:
+    def __init__(self, model_name, device):
+        self.model = gensim.models.doc2vec.Doc2Vec(vector_size=300, min_count=2, epochs=200)
+
+    def read_corpus(self, total, tokens_only=False):
+        for i, line in enumerate(total):
+            tokens = gensim.utils.simple_preprocess(line)
+            if tokens_only:
+                yield tokens
+            else:
+                # For training data, add tags
+                yield gensim.models.doc2vec.TaggedDocument(tokens, [i])
+
+    def train_model(self, s1,s2):
+        total = []
+        total.extend(s1)
+        total.extend(s2)
+        train_corpus = list(self.read_corpus(total))
+        test_corpus = list(self.read_corpus(total, tokens_only=True)) 
+        self.model.build_vocab(train_corpus)
+        self.model.train(train_corpus, total_examples=self.model.corpus_count, epochs=self.model.epochs)
+
+
+    def get_encodings(self, data, tensor=True):
+        all_emb = []
+        for sent in tqdm(data,total=len(data)):
+            # get word tokens
+            w_t = word_tokenize(sent)
+            vec = self.model.infer_vector(w_t)
+            all_emb.append(np.reshape(vec,(1,300)))
         all_emb = np.concatenate(all_emb, axis=0)
         if tensor:
             all_emb = torch.from_numpy(all_emb)
