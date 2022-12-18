@@ -8,6 +8,11 @@ import gensim
 import time
 import nltk
 import string
+import torch
+from torch import nn
+from transformers import AutoModel, AutoConfig, AutoTokenizer
+from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+
 nltk.download('punkt')
 nltk.download('stopwords')
 from nltk.corpus import stopwords
@@ -115,3 +120,51 @@ class SentenceTransformerModel:
                                      device=self.device,
                                      convert_to_tensor=True)
         return model_out
+
+
+class QAModel(nn.Module):
+    def __init__(self,
+                 base_model_name,*args,**kwargs):
+        
+        super(QAModel,self).__init__()
+        self.base_model = AutoModel.from_pretrained(base_model_name,add_pooling_layer=False)
+        self.base_model_config = AutoConfig.from_pretrained(base_model_name)
+        # define QA head (2 dim, one for start and other for end span)
+        self.qa_head = nn.Linear(self.base_model_config.hidden_size, 2)
+        
+    def forward(self,
+                input_ids,
+                attention_mask,
+                token_type_ids,
+                start_positions=None,
+                end_positions=None):
+        
+        out = self.base_model(input_ids,
+                             attention_mask=None,
+                             token_type_ids=None)
+        
+        logits = self.qa_head(out[0])
+        
+        start_logits, end_logits = torch.split(logits, split_size_or_sections=1, dim=-1)
+        start_logits, end_logits = start_logits.squeeze(dim=-1).contiguous(), end_logits.squeeze(dim=-1).contiguous()
+        
+        total_loss = None
+        if start_positions is not None and end_positions is not None:
+            # compute loss
+            ignore_index = start_logits.size(1)
+            start_positions = start_positions.clamp(0,ignore_index)
+            end_positions = end_positions.clamp(0,ignore_index)
+            loss_fct = CrossEntropyLoss(ignore_index=ignore_index)
+            start_loss = loss_fct(start_logits, start_positions)
+            end_loss = loss_fct(end_logits, end_positions)
+            total_loss = (start_loss + end_loss) / 2
+        
+        out_dict = {
+            'loss':total_loss,
+            'start_logits':start_logits,
+            'end_logits':end_logits,
+            'hidden_states':out.hidden_states,
+            'attention':out.attentions,
+        }
+        
+        return out_dict

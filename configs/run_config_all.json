@@ -1,0 +1,50 @@
+[
+    {
+        "run_name": "STS_pretrained_test",
+        "task_type": "SentenceSimilarity",
+        "device": "cuda",
+        "dataset":{
+            "url": "http://alt.qcri.org/semeval2016/task1/data/uploads/sts2016-english-with-gs-v1.0.zip",
+            "download": false
+        },
+        "eval": [
+            {
+                "model_type": "SentenceTransformerModel",
+                "model_names": [
+                    "bert-base-nli-mean-tokens",
+                    "msmarco-distilbert-base-tas-b",
+                    "multi-qa-mpnet-base-dot-v1",
+                    "sentence-t5-base"
+                ]
+            },
+            {
+                "model_type": "Word2VecModel",
+                "model_names": [
+                    "fasttext-wiki-news-subwords-300",
+                    "glove-wiki-gigaword-300",
+                    "word2vec-google-news-300"
+                ]
+            }
+        ]
+    },
+    {
+        "run_name": "QA_pretrained",
+        "task_type": "QuestionAnswering",
+        "device": "cuda",
+        "dataset":{
+            "url": {
+                "train":"https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v2.0.json",
+                "test":"https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v2.0.json"
+            },
+            "download": true
+        },
+        "train": [
+            {
+                "model_type": "QAModel",
+                "model_names": [
+                    "bert-base-cased"
+                ]
+            }
+        ]
+    }
+]

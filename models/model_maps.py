@@ -3,7 +3,8 @@ from models.model import *
 supported_models = [
     'SentenceTransformerModel',
     'Word2VecModel',
-    'Doc2VecModel'
+    'Doc2VecModel',
+    'QAModel'
 ]
 
 def get_model(cl_name, m_name, device):
