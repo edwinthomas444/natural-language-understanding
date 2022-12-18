@@ -19,6 +19,8 @@ def QATrain(mod, f_params, t_params, e_params, ds, model_type, model_name, run_i
     cache_file = 'train_features_{}_{}_{}'.format(f_params['max_query_length'],
                                                   f_params['doc_stride'],
                                                   f_params['max_query_length'])
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
     if f_params['load_from_cache_train']:
         print('\nLoading train features from cache..\n')
         if os.path.isfile(os.path.join(os.getcwd(),'cache',cache_file)):
@@ -36,7 +38,6 @@ def QATrain(mod, f_params, t_params, e_params, ds, model_type, model_name, run_i
         examples = examples[:sub_sample]
 
         # load features
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
         features, dataset = squad_convert_examples_to_features(
                     examples=examples,
                     tokenizer=tokenizer,

@@ -21,7 +21,7 @@ def config_parser(config_path):
 
 def driver():
     # get config for runs
-    config_path = './configs/run_config.json' # TODO: creating argparser
+    config_path = './configs/run_config_squad.json' # TODO: creating argparser
     all_configs = config_parser(config_path=config_path)
 
     for run in all_configs:

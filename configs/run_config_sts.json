@@ -1,10 +1,11 @@
 [
     {
-        "run_name": "run_test",
+        "run_name": "STS_pretrained_test2",
+        "task_type": "SentenceSimilarity",
         "device": "cuda",
         "dataset":{
             "url": "http://alt.qcri.org/semeval2016/task1/data/uploads/sts2016-english-with-gs-v1.0.zip",
-            "download": false
+            "download": true
         },
         "eval": [
             {
@@ -19,6 +20,14 @@
                     "gtr-t5-base",
                     "all-roberta-large-v1",
                     "gtr-t5-large"
+                ]
+            },
+            {
+                "model_type": "Word2VecModel",
+                "model_names": [
+                    "fasttext-wiki-news-subwords-300",
+                    "glove-wiki-gigaword-300",
+                    "word2vec-google-news-300"
                 ]
             }
         ]
