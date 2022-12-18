@@ -1,7 +1,7 @@
 import glob
 import os
 import zipfile
-import wget 
+import wget
 
 class DatasetSTS:
     def __init__(self, download_url):
@@ -11,7 +11,8 @@ class DatasetSTS:
         self.download_dataset()
         self.gt_files = self.get_gt_files()
         self.input_files = self.get_inp_files()
-        
+        self.pre_process()
+
     def download_dataset(self):
         if not self.download_url:
             return
@@ -65,5 +66,26 @@ class DatasetSTS:
     def get_gt_scores(self, data):
         scores = [x for _,_,x in data]
         return scores
+
+class DatasetSQUAD:
+    def __init__(self, download_url):
+        # create raw folder
+        self.download_url = download_url
+        self.dataset_root = os.path.join(os.getcwd(),'dataset','SQUADRawData')
+        self.download_dataset()
+        self.train_file = os.path.join(self.dataset_root,'train-v2.0.json')
+        self.test_file = os.path.join(self.dataset_root,'dev-v2.0.json')
+
+    def download_dataset(self):
+        if not self.download_url:
+            return
+
+        train_url = self.download_url['train']
+        test_url = self.download_url['test']
+        if not os.path.exists(self.dataset_root):
+            os.makedirs(self.dataset_root, exist_ok=True)
+
+        wget.download(train_url,out=self.dataset_root)
+        wget.download(test_url,out=self.dataset_root)
 
     
