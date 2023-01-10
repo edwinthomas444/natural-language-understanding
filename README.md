@@ -1,6 +1,6 @@
-# Task Specific Model Training and Evaluation
+# Task Specific Model Finetuning Framework
 
-A pre-trained sentence embedding evaluation tool that accepts user-defined configs and supports different pre-defined sets of pre-trained models and libraries. The tool generates a set of output files for the STSEvaluation Task for the models specified in the JSON based config files.
+A modular framework for task-specific finetuning of pre-trained models. Supports NLU tasks such as Question Answering and Sentence Similarity. Configs can be used to define tasks, base models (from hugging face), the dataset class for finetuning and other training and evaluation hyperparameters. Driver files are used to launch training/evaluation jobs based on pre-defined configs. The framework is easily extendable to other NLU tasks.
 
 ## Running the code
 ```
