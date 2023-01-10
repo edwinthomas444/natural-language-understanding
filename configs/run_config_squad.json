@@ -1,6 +1,6 @@
 [
     {
-        "run_name": "QA_Test_cache",
+        "run_name": "QA_roberta_full",
         "task_type": "QuestionAnswering",
         "device": "cuda",
         "dataset":{
@@ -8,18 +8,18 @@
                 "train":"https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v2.0.json",
                 "test":"https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v2.0.json"
             },
-            "download": false
+            "download": true
         },
         "train":
             {
                 "model_type": "QAModel",
                 "model_names": [
-                    "bert-base-cased",
                     "roberta-base",
-                    "albert-base-v2"
+                    "albert-base-v2",
+                    "bert-base-cased"
                 ],
                 "feature_params":{
-                    "load_from_cache_train":true,
+                    "load_from_cache_train":false,
                     "load_from_cache_test":false,
                     "max_seq_length":384,
                     "doc_stride":128,
@@ -28,7 +28,7 @@
                 "train_params":{
                     "batch_size":2,
                     "train_epochs":1,
-                    "subset_samples":0.05,
+                    "subset_samples":1.0,
                     "gradient_accum_steps":1,
                     "warm_up_steps":0,
                     "optimizer":{
@@ -39,7 +39,7 @@
                 "eval_params":{
                     "batch_size":2,
                     "n_best":20,
-                    "subset_samples":0.1,
+                    "subset_samples":1.0,
                     "max_answer_length":30,
                     "do_lower_case":false
                 }

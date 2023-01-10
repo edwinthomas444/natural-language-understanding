@@ -12,6 +12,8 @@ import torch
 from torch import nn
 from transformers import AutoModel, AutoConfig, AutoTokenizer
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+from torch import nn
+import torch.nn.functional as F
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -168,3 +170,21 @@ class QAModel(nn.Module):
         }
         
         return out_dict
+
+
+class MetaLearner(nn.Module):
+    def __init__(self, n_best, num_base_models, feat_dim):
+        super(MetaLearner,self).__init__()
+        self.hidden_layer_size = int(num_base_models*n_best*feat_dim/2.0)
+        self.dense1 = nn.Linear(num_base_models*n_best*feat_dim, self.hidden_layer_size)
+        self.dense2 = nn.Linear(self.hidden_layer_size, num_base_models*n_best)
+    def forward(self, data):
+        # data is tensor of size (b, 2*n_best, 2 features)
+        flattened = torch.flatten(data, start_dim=1) # flatten after batch (b, n_best*2)
+        out=self.dense1(flattened)
+        # adding non-linearity
+        out=F.relu(out)
+        out=self.dense2(out)
+        out=F.log_softmax(out, dim=1)
+        return out
+        

@@ -34,6 +34,7 @@ pip install -r requirements.txt
 |   |           .......
 ├───driver
 │   └───driver.py
+|   └───driver_ensemble.py
 │
 ├───models
 │   └───model.py
@@ -49,7 +50,13 @@ pip install -r requirements.txt
 ## Files
 1. `driver/driver.py`: Starting point using which tool is launched.
 2. `models/model.py`: Model definitions (Sentence Transformer, Word2vec, Doc2Vec, Glove, and others).
-3. `configs/run_config.json`: Specify the model names and device to run the inference (CPU  ("cpu") or GPU ("cuda") supported). If Dataset download is set to false, existing dataset folder used under dataset/STSRawData, otherwise dataset is fetched from given download link.
+3. `configs/run_config_sts.json`: Specify the model names and device to run the inference (CPU  ("cpu") or GPU ("cuda") supported). If Dataset download is set to false, existing dataset folder used under dataset/STSRawData, otherwise dataset is fetched from given download link.
 4. `models/model_maps.py`: Supported models based on libraries offering their pre-trained weights. To Extend the package, this file needs to be augmented.
 
+## Ensemble Files
+1. `driver/driver_ensemble.py`: Starting point using the tool to train ensemble on SQUAD dataset.
+2. `train`: train files and utilties for squad and sts
+3. `evaluation`: evaluation files and utilities for squad and sts
+4. `models`: QA and STS model variations and their definitions
+5. `configs/run_config_squad.json`: Specify the model names and device to run the inference (CPU  ("cpu") or GPU ("cuda") supported). If Dataset download is set to false, existing dataset 
 

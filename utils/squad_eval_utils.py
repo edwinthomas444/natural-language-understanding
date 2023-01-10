@@ -1,10 +1,6 @@
 """
 Very heavily inspired by the official evaluation script for SQuAD version 2.0 which was modified by XLNet authors to
 update `find_best_threshold` scripts for SQuAD V2.0
-
-In addition to basic functionality, we also compute additional statistics and plot precision-recall curves if an
-additional na_prob.json file is provided. This file is expected to map question ID's to the model's predicted
-probability that a question is unanswerable.
 """
 
 
@@ -87,6 +83,7 @@ def get_raw_scores(examples, preds):
             continue
 
         prediction = preds[qas_id]
+        # print("\n\n\n\nqas_id: ",qas_id, "\n\n")
         exact_scores[qas_id] = max(compute_exact(a, prediction) for a in gold_answers)
         f1_scores[qas_id] = max(compute_f1(a, prediction) for a in gold_answers)
 
@@ -392,15 +389,39 @@ def compute_predictions_logits(
     if output_null_log_odds_file and version_2_with_negative:
         logger.info(f"Writing null_log_odds to: {output_null_log_odds_file}")
 
-    example_index_to_features = collections.defaultdict(list)
-    for feature in all_features:
-        example_index_to_features[feature.example_index].append(feature)
-    # print(example_index_to_features)
-    # return
-
     unique_id_to_result = {}
     for result in all_results:
         unique_id_to_result[result.unique_id] = result
+
+
+    # for ensemble updating features list
+    all_features_new_indices = []
+    for feat_ind, feature in enumerate(all_features):
+        if feature.unique_id in unique_id_to_result:
+            all_features_new_indices.append(feat_ind)
+    all_features = [all_features[ind] for ind in all_features_new_indices]
+
+    example_index_to_features = collections.defaultdict(list)
+    for feature in all_features:
+        example_index_to_features[feature.example_index].append(feature)
+
+    
+
+    # added for ensemble
+    valid_example_ids = []
+    for example_index, example in enumerate(all_examples):
+        features = example_index_to_features[example_index]
+        for feature_index, feature in enumerate(features): 
+            if feature.unique_id in unique_id_to_result:
+                if feature.example_index not in valid_example_ids:
+                    valid_example_ids.append(feature.example_index)
+                    # valid_example_ids.add(feature.example_index)
+    all_examples = [all_examples[ind] for ind in valid_example_ids]
+    
+
+    # get local to global example index mappings
+    example_ids_local2global = {i:x for i,x in enumerate(valid_example_ids)}
+    
 
     _PrelimPrediction = collections.namedtuple(  # pylint: disable=invalid-name
         "PrelimPrediction", ["feature_index", "start_index", "end_index", "start_logit", "end_logit"]
@@ -410,9 +431,11 @@ def compute_predictions_logits(
     all_nbest_json = collections.OrderedDict()
     scores_diff_json = collections.OrderedDict()
 
-    for example_index, example in tqdm(enumerate(all_examples), total=len(all_examples)):
-        features = example_index_to_features[example_index]
-
+    # examples always start from 0, 1 so features also taken from 0,1 each time
+    for example_index_local, example in tqdm(enumerate(all_examples), total=len(all_examples)):
+        example_index_global = example_ids_local2global[example_index_local]
+        features = example_index_to_features[example_index_global]
+        
         prelim_predictions = []
         # keep track of the minimum score of null start+end of position 0
         score_null = 1000000  # large and positive
@@ -420,6 +443,7 @@ def compute_predictions_logits(
         null_start_logit = 0  # the start logit at the slice with min null score
         null_end_logit = 0  # the end logit at the slice with min null score
         for feature_index, feature in enumerate(features):
+
             result = unique_id_to_result[feature.unique_id]
             start_indexes = _get_best_indexes(result.start_logits, n_best_size)
             end_indexes = _get_best_indexes(result.end_logits, n_best_size)
@@ -451,6 +475,8 @@ def compute_predictions_logits(
                     length = end_index - start_index + 1
                     if length > max_answer_length:
                         continue
+
+                    # print("\nPassed conditions: ",prelim_predictions)
                     prelim_predictions.append(
                         _PrelimPrediction(
                             feature_index=feature_index,
@@ -508,11 +534,15 @@ def compute_predictions_logits(
         # if we didn't include the empty option in the n-best, include it
         if version_2_with_negative:
             if "" not in seen_predictions:
+                # remove last one to add null
+                if len(nbest)==n_best_size:
+                    nbest = nbest[:-1]
                 nbest.append(_NbestPrediction(text="", start_logit=null_start_logit, end_logit=null_end_logit))
 
             # In very rare edge cases we could only have single null prediction.
             # So we just create a nonce prediction in this case to avoid failure.
             if len(nbest) == 1:
+                # print('len(nbest) == 1')
                 nbest.insert(0, _NbestPrediction(text="empty", start_logit=0.0, end_logit=0.0))
 
         # In very rare edge cases we could have no valid predictions. So we
@@ -549,12 +579,24 @@ def compute_predictions_logits(
             all_predictions[example.qas_id] = nbest_json[0]["text"]
         else:
             # predict "" iff the null score - the score of best non-null > threshold
-            score_diff = score_null - best_non_null_entry.start_logit - (best_non_null_entry.end_logit)
-            scores_diff_json[example.qas_id] = score_diff
-            if score_diff > null_score_diff_threshold:
-                all_predictions[example.qas_id] = ""
+            # if a non null entry exists
+            if best_non_null_entry:
+                score_diff = score_null - best_non_null_entry.start_logit - (best_non_null_entry.end_logit)
+                scores_diff_json[example.qas_id] = score_diff
+                if score_diff > null_score_diff_threshold:
+                    all_predictions[example.qas_id] = ""
+                    # also change for nbest
+                    nbest_json[0]['text'] = ""
+                    # print('Changin to '' from {}')
+                else:
+                    all_predictions[example.qas_id] = best_non_null_entry.text
             else:
-                all_predictions[example.qas_id] = best_non_null_entry.text
+                print("\nNo no-null entry")
+                # if doesnt exist give it an void string as only null entry exists
+                all_predictions[example.qas_id] = ""
+                # also change for nbest
+                nbest_json[0]['text'] = ""
+
         all_nbest_json[example.qas_id] = nbest_json
         
 
@@ -570,4 +612,4 @@ def compute_predictions_logits(
         with open(output_null_log_odds_file, "w") as writer:
             writer.write(json.dumps(scores_diff_json, indent=4) + "\n")
 
-    return all_predictions
+    return all_predictions, all_nbest_json, all_examples

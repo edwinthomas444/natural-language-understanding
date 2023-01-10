@@ -5,6 +5,8 @@ from preprocess.squad_utilities import whitespace_tokenize, _improve_answer_span
 from preprocess.squad_objects import SquadFeatures
 from torch.utils.data import TensorDataset
 
+# Heavily adapted from Huggingface
+
 def squad_convert_example_to_features(example, tokenizer, max_seq_length, doc_stride, max_query_length, is_training):
     features = []
     if is_training and not example.is_impossible:

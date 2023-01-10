@@ -3,6 +3,7 @@ from torch.utils.data import Dataset, TensorDataset
 from preprocess.squad_objects import *
 import os
 import json
+# Heavily adapted from Huggingface
 
 class SquadProcessor:
     """

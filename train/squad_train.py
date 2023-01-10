@@ -91,7 +91,7 @@ def QATrain(mod, f_params, t_params, e_params, ds, model_type, model_name, run_i
     scheduler = get_linear_schedule_with_warmup(
         optimizer, num_warmup_steps=t_params['warm_up_steps'], num_training_steps=total_train_steps
     )
-
+    
     # train model
     mod.zero_grad()
     for epoch in range(train_epochs):
@@ -124,8 +124,8 @@ def QATrain(mod, f_params, t_params, e_params, ds, model_type, model_name, run_i
     
     save_path = os.path.join(os.getcwd(),'output',run_id, f'{model_type}_{model_name}.pt')
     print(f'\nSaving model checkpoint.. at {save_path}..\n')
-    torch.save(mod, save_path)
-
+    torch.save(mod.state_dict(), save_path)
+    
     # evaluate model
     inf_rows = QAEvaluate(mod, f_params, e_params, ds, model_type, model_name, run_id, device=device)
     return inf_rows
