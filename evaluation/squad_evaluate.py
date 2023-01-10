@@ -1,3 +1,6 @@
+import sys
+sys.path.append('./')
+
 from utils.squad_eval_utils import *
 from utils.result_utils import InferenceRowSQUAD
 from preprocess.squad_features import *
@@ -6,6 +9,9 @@ from preprocess.squad_processors import *
 from preprocess.squad_utilities import *
 from transformers import AutoModel, AutoConfig, AutoTokenizer
 from torch.utils.data import DataLoader, SequentialSampler
+from dataset.dataset import DatasetSQUAD
+from models.model import QAModel
+
 
 def QAEvaluate(mod, f_params, e_params, ds, model_type, model_name, run_id, device='cpu'):
     device = torch.device(device)
@@ -93,19 +99,19 @@ def QAEvaluate(mod, f_params, e_params, ds, model_type, model_name, run_id, devi
     nbest_file = os.path.join(os.getcwd(),'output',run_id, output_nbest_file)
     null_log_file = os.path.join(os.getcwd(),'output',run_id, output_null_log_odds_file)
 
-    predictions = compute_predictions_logits(
-                    examples,
-                    features,
-                    all_results,
-                    e_params['n_best'], # nbest
-                    e_params['max_answer_length'], # max answer length
-                    e_params['do_lower_case'], # do lower case
-                    pred_file,
-                    nbest_file,
-                    null_log_file,
-                    False, # verbose logging
-                    True, # version with negatives
-                    0, tokenizer)
+    predictions, _, _ = compute_predictions_logits(
+                                                examples,
+                                                features,
+                                                all_results,
+                                                e_params['n_best'], # nbest
+                                                e_params['max_answer_length'], # max answer length
+                                                e_params['do_lower_case'], # do lower case
+                                                pred_file,
+                                                nbest_file,
+                                                null_log_file,
+                                                False, # verbose logging
+                                                True, # version with negatives
+                                                0, tokenizer)
 
     results = squad_evaluate(examples, predictions)
     results = list(results.items())
@@ -129,3 +135,42 @@ def QAEvaluate(mod, f_params, e_params, ds, model_type, model_name, run_id, devi
                                 set_best_f1thresh_type(r_dict['best_f1_thresh'])
                                 
     return inf_row
+
+def main():
+    mod = QAModel(base_model_name='roberta-base')
+    mod.load_state_dict(torch.load(os.path.join(os.getcwd(),'./output/QA_roberta_full\QAModel_roberta-base.pt')))
+    mod.to(torch.device('cuda'))
+    mod.eval()
+
+    f_params = {
+        "load_from_cache_train":False,
+        "load_from_cache_test":False,
+        "max_seq_length":384,
+        "doc_stride":128,
+        "max_query_length":64
+    }
+                
+    e_params = {
+        "batch_size":2,
+        "n_best":20,
+        "subset_samples":1.0,
+        "max_answer_length":30,
+        "do_lower_case":False
+    }
+    ds = DatasetSQUAD(download_url=None)
+    model_type = "QAModel"
+    model_name = "roberta-base"
+    run_id = "Test-eval"
+    
+    inf_row = QAEvaluate(mod, f_params, e_params, ds, model_type, model_name, run_id, device='cuda')
+    print('f1 score: ',inf_row.f1_type)
+    print('em score', inf_row.em_type)
+    print('hasans_exact: ',inf_row.hasans_em_type)
+    print('hasans_f1: ',inf_row.hasans_f1_type)
+    print('noans_exact: ',inf_row.noans_em_type)
+    print('noans_f1: ',inf_row.noans_f1_type)
+
+
+
+if __name__ == '__main__':
+    main()
