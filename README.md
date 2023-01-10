@@ -1,4 +1,4 @@
-# CSI5386-NLP-Assignment1
+# Task Specific Model Training and Evaluation
 
 A pre-trained sentence embedding evaluation tool that accepts user-defined configs and supports different pre-defined sets of pre-trained models and libraries. The tool generates a set of output files for the STSEvaluation Task for the models specified in the JSON based config files.
 
