@@ -1,6 +1,6 @@
 # Task Specific Model Finetuning Framework
 
-A modular framework for task-specific finetuning of pre-trained models. Supports NLU tasks such as Question Answering and Sentence Similarity. Configs can be used to define tasks, base models (from hugging face), the dataset class for finetuning and other training and evaluation hyperparameters. Driver files are used to launch training/evaluation jobs based on pre-defined configs. The framework is easily extendable to other NLU tasks.
+A modular framework for task-specific finetuning of pre-trained language models. Supports NLU (Natural Language Understanding) tasks such as Question Answering and Sentence Similarity. Configs can be used to define tasks, base models (from hugging face), the dataset class for finetuning and other training and evaluation hyperparameters. Driver files are used to launch training/evaluation jobs based on pre-defined configs. The framework is easily extendable to other NLU tasks.
 
 ## Running the code
 ```
