@@ -55,6 +55,6 @@ pip install -r requirements.txt
 5. `driver/driver_ensemble.py`: Starting point using the tool to train ensemble on SQUAD dataset.
 6. `train/*`: train files and utilties for squad and sts
 7. `evaluation/*`: evaluation files and utilities for squad and sts
-8. `models`: QA and STS model variations and their definitions
+8. `models/*`: QA and STS model variations and their definitions
 9. `configs/run_config_squad.json`: Specify the model names and device to run the inference (CPU  ("cpu") or GPU ("cuda") supported). If Dataset download is set to false, existing dataset is used. 
 
